@@ -4,6 +4,24 @@
 int ret = 0;
 int tmp = 0;
 
+int proc_stat(char *filename, int *total, int *idle)
+{
+        int i;
+        FILE *file = fopen(filename, "r");
+        if(!file)
+                return -1;
+        if(fscanf(file, "cpu ") != 0) {
+                fclose(file);
+                return -1;
+        }
+        for(i=0; fscanf(file, " %d", &tmp) == 1 && i < 4; ++i) {
+                *total += tmp;
+                if(i == 3) *idle += tmp;
+        }
+        fclose(file);
+        return 0;
+}
+
 int proc_meminfo(char *filename, int *total, int *free)
 {
         FILE *file = fopen(filename, "r");
@@ -64,7 +82,6 @@ int main(int argc, char **argv)
 {
         FILE *file = NULL;
         int ret = 0;
-        int i;
         int tmp;
         int mem_total = 0;
         int mem_free = 0;
@@ -79,17 +96,8 @@ int main(int argc, char **argv)
         int bat_full = 0;
         float bat_percent = 0.0f;
         
-        file = fopen("/proc/stat", "r");
-        if(!file)
-                return -1;
-        ret = fscanf(file, "cpu ") + 1;
-        for(i=0; ret > 0 && i < 4; ++i) {
-                ret = fscanf(file, " %d", &tmp);
-                cpu_total += tmp;
-                if(i == 3) cpu_idle = tmp;
-        }
-        fclose(file);
 
+        proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
         get_int("/sys/class/thermal/thermal_zone0/temp", &cpu_temp);
         get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
@@ -122,18 +130,10 @@ int main(int argc, char **argv)
         cpu_freq *= 0.000001;
         bat_percent = bat_now*100.0f/bat_full;
 
-        usleep(1000000);
-        file = fopen("/proc/stat", "r");
-        if(!file)
-                return -1;
-        ret = fscanf(file, "cpu ") + 1;
-        for(i=0; ret > 0 && i < 4; ++i) {
-                ret = fscanf(file, " %d", &tmp);
-                cpu_total -= tmp;
-                if(i == 3) cpu_idle = tmp - cpu_idle;
-        }
-        fclose(file);
         cpu_total = -cpu_total;
+        cpu_idle = -cpu_idle;
+        usleep(1000000);
+        proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
         printf("mem: %.1f%% "
