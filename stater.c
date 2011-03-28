@@ -80,9 +80,6 @@ int get_float(char *filename, float *val)
 
 int main(int argc, char **argv)
 {
-        FILE *file = NULL;
-        int ret = 0;
-        int tmp;
         int mem_total = 0;
         int mem_free = 0;
         float mem_percent = 0.0f;
@@ -94,6 +91,7 @@ int main(int argc, char **argv)
         int bat_present = 0;
         int bat_now = 0;
         int bat_full = 0;
+        char bat_status[sizeof("Discharging\n")];
         float bat_percent = 0.0f;
         struct timeval tv = {1, 0};
 
