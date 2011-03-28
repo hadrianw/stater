@@ -103,17 +103,14 @@ int main(int argc, char **argv)
         get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
                         &cpu_freq);
 
-        file = fopen("/sys/class/power_supply/BAT0/present", "r");
-        if(file) {
-                tmp = 0;
-                ret = fscanf(file, "%d", &tmp);
-                fclose(file);
-                if(tmp && ret > 0) {
-                        get_int("/sys/class/power_supply/BAT0/energy_now",
-                                        &bat_now);
-                        get_int("/sys/class/power_supply/BAT0/energy_full",
-                                        &bat_full);
-                }
+        if(get_int("/sys/class/power_supply/BAT0/present",
+                        &bat_present) != 0)
+                bat_present = 0;
+        if(bat_present) {
+                get_int("/sys/class/power_supply/BAT0/energy_now",
+                                &bat_now);
+                get_int("/sys/class/power_supply/BAT0/energy_full",
+                                &bat_full);
         }
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
@@ -128,10 +125,10 @@ int main(int argc, char **argv)
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
         printf("mem: %.1f%% "
-               "cpu: %d°C %.1f%% %.1fGHz "
-               "bat: %.1f%%\n",
+               "cpu: %d°C %.1f%% %.1fGHz ",
                mem_percent,
-               cpu_temp, cpu_percent, cpu_freq,
-               bat_percent);
+               cpu_temp, cpu_percent, cpu_freq);
+        if(bat_present)
+                printf("bat: %.1f%%\n", bat_percent);
         return 0;
 }
