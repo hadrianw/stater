@@ -45,6 +45,21 @@ int get_int(char *filename, int *val)
         }
 }
 
+int get_float(char *filename, float *val)
+{
+        FILE *file = fopen(filename, "r");
+        if(!file)
+                return -1;
+        ret = fscanf(file, "%f", val);
+        fclose(file);
+        if(ret == 1)
+                return 0;
+        else {
+                *val = -1;
+                return -1;
+        }
+}
+
 int main(int argc, char **argv)
 {
         FILE *file = NULL;
@@ -77,12 +92,8 @@ int main(int argc, char **argv)
 
         mem("/proc/meminfo", &mem_total, &mem_free);
         get_int("/sys/class/thermal/thermal_zone0/temp", &cpu_temp);
-
-        file = fopen("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r");
-        if(!file)
-                return -1;
-        ret = fscanf(file, "%f", &cpu_freq);
-        fclose(file);
+        get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
+                        &cpu_freq);
 
         file = fopen("/sys/class/power_supply/BAT0/present", "r");
         if(file) {
