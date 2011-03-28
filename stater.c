@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         }
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
-        cpu_temp *= 0.001;
+        cpu_temp /= 1000;
         cpu_freq *= 0.000001;
         bat_percent = bat_now*100.0f/bat_full;
 
