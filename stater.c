@@ -62,6 +62,11 @@ int main(int argc, char **argv)
 
         mem("/proc/meminfo", &mem_total, &mem_free);
 
+        file = fopen("/sys/class/thermal/thermal_zone0/temp", "r");
+        if(!file)
+                return -1;
+        ret = fscanf(file, "%d", &cpu_temp);
+        fclose(file);
 
         file = fopen("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r");
         if(!file)
