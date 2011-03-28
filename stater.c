@@ -1,26 +1,33 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int mem(char *filename, int *free, int *total)
-{
-        int ret = 0;
-        int tmp;
-        FILE *file = fopen(filename, "r");
-        if(!file)
-                return -1;
-        ret = fscanf(file, "MemTotal: %d kB\n", total);
-        ret = fscanf(file, "MemFree: %d kB\n", &tmp);
-        if(ret > 0)
-                *free += tmp;
-        ret = fscanf(file, "Buffers: %d kB\n", &tmp);
-        if(ret > 0)
-                *free += tmp;
-        ret = fscanf(file, "Cached: %d kB\n", &tmp);
-        if(ret > 0)
-                *free += tmp;
-        fclose(file);
+int ret = 0;
+int tmp = 0;
 
-        return 0;
+int mem(char *filename, int *total, int *free)
+{
+        FILE *file = fopen(filename, "r");
+        if(!file) {
+                *total = -1;
+                *free = -1;
+                return -1;
+        }
+
+        if(fscanf(file, "MemTotal: %d kB\n", total) != 1)
+                *total = -1;
+
+        *free = 0;
+        if(fscanf(file, "MemFree: %d kB\n", &tmp) == 1)
+                *free += tmp;
+        if(fscanf(file, "Buffers: %d kB\n", &tmp) == 1)
+                *free += tmp;
+        if(fscanf(file, "Cached: %d kB\n", &tmp) == 1)
+                *free += tmp;
+        if(*free == 0)
+                *free = -1;
+
+        fclose(file);
+        return (*total == -1 || *free == -1) ?-1 :0;
 }
 
 int main(int argc, char **argv)
@@ -53,13 +60,8 @@ int main(int argc, char **argv)
         }
         fclose(file);
 
-        mem("/proc/meminfo", &mem_free, &mem_total);
+        mem("/proc/meminfo", &mem_total, &mem_free);
 
-        file = fopen("/sys/class/thermal/thermal_zone0/temp", "r");
-        if(!file)
-                return -1;
-        ret = fscanf(file, "%d", &cpu_temp);
-        fclose(file);
 
         file = fopen("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r");
         if(!file)
