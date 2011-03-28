@@ -4,7 +4,7 @@
 int ret = 0;
 int tmp = 0;
 
-int mem(char *filename, int *total, int *free)
+int proc_meminfo(char *filename, int *total, int *free)
 {
         FILE *file = fopen(filename, "r");
         if(!file) {
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
         }
         fclose(file);
 
-        mem("/proc/meminfo", &mem_total, &mem_free);
+        proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
         get_int("/sys/class/thermal/thermal_zone0/temp", &cpu_temp);
         get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
                         &cpu_freq);
