@@ -107,22 +107,13 @@ int main(int argc, char **argv)
         if(file) {
                 tmp = 0;
                 ret = fscanf(file, "%d", &tmp);
-                if(tmp && ret > 0) {
-                        fclose(file);
-                        file = fopen("/sys/class/power_supply/BAT0/energy_now",
-                                        "r");
-                        if(!file)
-                                return -1;
-                        ret = fscanf(file, "%d", &bat_now);
-                        fclose(file);
-
-                        file = fopen("/sys/class/power_supply/BAT0/energy_full",
-                                        "r");
-                        if(!file)
-                                return -1;
-                        ret = fscanf(file, "%d", &bat_full);
-                }
                 fclose(file);
+                if(tmp && ret > 0) {
+                        get_int("/sys/class/power_supply/BAT0/energy_now",
+                                        &bat_now);
+                        get_int("/sys/class/power_supply/BAT0/energy_full",
+                                        &bat_full);
+                }
         }
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
