@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <unistd.h>
+#include <sys/select.h>
 
 int ret = 0;
 int tmp = 0;
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
         int bat_now = 0;
         int bat_full = 0;
         float bat_percent = 0.0f;
-        
+        struct timeval tv = {1, 0};
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 
         cpu_total = -cpu_total;
         cpu_idle = -cpu_idle;
-        usleep(1000000);
+        select(0, 0, 0, 0, &tv);
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
