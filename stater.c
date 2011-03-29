@@ -136,7 +136,7 @@ int main(int argc, char **argv)
                style_head, style_norm, mem_percent,
                style_head, style_norm, cpu_temp, cpu_percent, cpu_freq);
         if(bat_present)
-                printf(" bat: %.1f%%", style_head, style_norm, bat_percent);
+                printf(" %sbat:%s %.1f%%", style_head, style_norm, bat_percent);
         printf(" %sgpu:%s %d°C\n", style_head, style_norm, gpu_temp);
         return 0;
 }
