@@ -93,6 +93,7 @@ int main(int argc, char **argv)
         int bat_full = 0;
         char bat_status[sizeof("Discharging\n")];
         float bat_percent = 0.0f;
+        int gpu_temp = 0;
         struct timeval tv = {1, 0};
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
@@ -110,11 +111,13 @@ int main(int argc, char **argv)
                 get_int("/sys/class/power_supply/BAT0/energy_full",
                                 &bat_full);
         }
+        get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input", &gpu_temp);
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
         cpu_temp /= 1000;
         cpu_freq *= 0.000001;
         bat_percent = bat_now*100.0f/bat_full;
+        gpu_temp /= 1000;
 
         cpu_total = -cpu_total;
         cpu_idle = -cpu_idle;
@@ -122,11 +125,12 @@ int main(int argc, char **argv)
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
-        printf("mem: %.1f%% "
-               "cpu: %d°C %.1f%% %.1fGHz ",
+        printf("mem: %.1f%%"
+               " cpu: %d°C %.1f%% %.1fGHz",
                mem_percent,
                cpu_temp, cpu_percent, cpu_freq);
         if(bat_present)
-                printf("bat: %.1f%%\n", bat_percent);
+                printf(" bat: %.1f%%", bat_percent);
+        printf(" gpu: %d°C\n", gpu_temp);
         return 0;
 }
