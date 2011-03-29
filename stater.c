@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <sys/select.h>
+#include <stdio.h>
+#include <string.h>
 
 int ret = 0;
 int tmp = 0;
@@ -78,6 +79,7 @@ int get_float(char *filename, float *val)
         }
 }
 
+char *style_null = "";
 char *style_wmfs_head = "\\#FFFFFF\\";
 char *style_wmfs_norm = "\\#D4D4D4\\";
 
@@ -98,8 +100,15 @@ int main(int argc, char **argv)
         float bat_percent = 0.0f;
         int gpu_temp = 0;
         struct timeval tv = {1, 0};
-        char *style_head = style_wmfs_head;
-        char *style_norm = style_wmfs_norm;
+        char *style_head;
+        char *style_norm;
+        if(argc > 1 && !strcmp(argv[1], "-w")) {
+                style_head = style_wmfs_head;
+                style_norm = style_wmfs_norm;
+        } else {
+                style_head = style_null;
+                style_norm = style_null;
+        }
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
