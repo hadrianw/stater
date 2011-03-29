@@ -78,6 +78,9 @@ int get_float(char *filename, float *val)
         }
 }
 
+char *style_head = "\\#FFFFFF\\";
+char *style_norm = "\\#D4D4D4\\";
+
 int main(int argc, char **argv)
 {
         int mem_total = 0;
@@ -111,6 +114,7 @@ int main(int argc, char **argv)
                 get_int("/sys/class/power_supply/BAT0/energy_full",
                                 &bat_full);
         }
+
         get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input", &gpu_temp);
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
@@ -125,12 +129,12 @@ int main(int argc, char **argv)
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
-        printf("mem: %.1f%%"
-               " cpu: %d°C %.1f%% %.1fGHz",
-               mem_percent,
-               cpu_temp, cpu_percent, cpu_freq);
+        printf("%smem:%s %.1f%%"
+               " %scpu:%s %d°C %.1f%% %.1fGHz",
+               style_head, style_norm, mem_percent,
+               style_head, style_norm, cpu_temp, cpu_percent, cpu_freq);
         if(bat_present)
-                printf(" bat: %.1f%%", bat_percent);
-        printf(" gpu: %d°C\n", gpu_temp);
+                printf(" bat: %.1f%%", style_head, style_norm, bat_percent);
+        printf(" %sgpu:%s %d°C\n", style_head, style_norm, gpu_temp);
         return 0;
 }
