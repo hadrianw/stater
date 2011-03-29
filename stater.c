@@ -78,8 +78,8 @@ int get_float(char *filename, float *val)
         }
 }
 
-char *style_head = "\\#FFFFFF\\";
-char *style_norm = "\\#D4D4D4\\";
+char *style_wmfs_head = "\\#FFFFFF\\";
+char *style_wmfs_norm = "\\#D4D4D4\\";
 
 int main(int argc, char **argv)
 {
@@ -98,6 +98,8 @@ int main(int argc, char **argv)
         float bat_percent = 0.0f;
         int gpu_temp = 0;
         struct timeval tv = {1, 0};
+        char *style_head = style_wmfs_head;
+        char *style_norm = style_wmfs_norm;
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
