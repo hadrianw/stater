@@ -79,6 +79,17 @@ int get_float(char *filename, float *val)
         }
 }
 
+int get_string(char *filename, char *val, int n)
+{
+        FILE *file = fopen(filename, "r");
+        if(!file)
+                return -1;
+        ret = fread(val, sizeof(*val), n, file);
+        fclose(file);
+        val[ret] = '\0';
+        return 0;
+}
+
 char *style_null = "";
 char *style_wmfs_head = "\\#FFFFFF\\";
 char *style_wmfs_norm = "\\#D4D4D4\\";
@@ -96,7 +107,12 @@ int main(int argc, char **argv)
         int bat_present = 0;
         int bat_now = 0;
         int bat_full = 0;
+        int bat_rate = 0;
         char bat_status[sizeof("Discharging\n")];
+        char bat_state = '~';
+        int bat_hours = 0;
+        int bat_minutes = 0;
+        float bat_time = 0.0f;
         float bat_percent = 0.0f;
         int gpu_temp = 0;
         struct timeval tv = {1, 0};
@@ -124,6 +140,19 @@ int main(int argc, char **argv)
                                 &bat_now);
                 get_int("/sys/class/power_supply/BAT0/energy_full",
                                 &bat_full);
+                get_string("/sys/class/power_supply/BAT0/status",
+                                bat_status, sizeof(bat_status));
+                if(!strcmp(bat_status, "Discharging\n")) {
+                        get_int("/sys/class/power_supply/BAT0/power_now",
+                                        &bat_rate);
+                        bat_time = (float)bat_now / bat_rate;
+                        bat_state = '-';
+                } else if(!strcmp(bat_status, "Charging\n")) {
+                        get_int("/sys/class/power_supply/BAT0/power_now",
+                                        &bat_rate);
+                        bat_time = (float)(bat_full - bat_now) / bat_rate;
+                        bat_state = '+';
+                }
         }
 
         get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input", &gpu_temp);
@@ -132,6 +161,8 @@ int main(int argc, char **argv)
         cpu_temp /= 1000;
         cpu_freq *= 0.000001;
         bat_percent = bat_now*100.0f/bat_full;
+        bat_hours = bat_time;
+        bat_minutes = (bat_time - bat_hours) * 60;
         gpu_temp /= 1000;
 
         cpu_total = -cpu_total;
@@ -144,8 +175,12 @@ int main(int argc, char **argv)
                " %scpu:%s %d°C %.1f%% %.1fGHz",
                style_head, style_norm, mem_percent,
                style_head, style_norm, cpu_temp, cpu_percent, cpu_freq);
-        if(bat_present)
-                printf(" %sbat:%s %.1f%%", style_head, style_norm, bat_percent);
+        if(bat_present) {
+                printf(" %sbat:%s %.1f%% %c",
+                       style_head, style_norm, bat_percent, bat_state);
+                if(bat_state != '~' && bat_hours >= 0 && bat_minutes >= 0)
+                        printf("%02d:%02d", bat_hours, bat_minutes);
+        }
         printf(" %sgpu:%s %d°C\n", style_head, style_norm, gpu_temp);
         return 0;
 }
