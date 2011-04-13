@@ -8,7 +8,7 @@ LIBS =
 
 # flags
 CPPFLAGS = #-D
-CFLAGS   = -std=c99 -pedantic -Os -Wall ${INCS} ${CPPFLAGS}
+CFLAGS   = -std=c99 -pedantic -Os -Wall ${INCS} ${CPPFLAGS} -march=native
 LDFLAGS  = -s ${LIBS}
 
 # compiler and linker

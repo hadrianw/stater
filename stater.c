@@ -162,7 +162,7 @@ int main(int argc, char **argv)
         cpu_freq *= 0.000001;
         bat_percent = bat_now*100.0f/bat_full;
         bat_hours = bat_time;
-        bat_minutes = (bat_time - bat_hours) * 60;
+        bat_minutes = (bat_time - bat_hours) * 60.0f;
         gpu_temp /= 1000;
 
         cpu_total = -cpu_total;
@@ -176,10 +176,9 @@ int main(int argc, char **argv)
                style_head, style_norm, mem_percent,
                style_head, style_norm, cpu_temp, cpu_percent, cpu_freq);
         if(bat_present) {
-                printf(" %sbat:%s %.1f%% %c",
-                       style_head, style_norm, bat_percent, bat_state);
+                printf(" %sbat:%s %.1f%%", style_head, style_norm, bat_percent);
                 if(bat_state != '~' && bat_hours >= 0 && bat_minutes >= 0)
-                        printf("%02d:%02d", bat_hours, bat_minutes);
+                        printf(" %c%02d:%02d", bat_state, bat_hours, bat_minutes);
         }
         printf(" %sgpu:%s %d°C\n", style_head, style_norm, gpu_temp);
         return 0;
