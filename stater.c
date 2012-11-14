@@ -91,8 +91,8 @@ int get_string(char *filename, char *val, int n)
 }
 
 char *style_null = "";
-char *style_wmfs_head = "\\#FFFFFF\\";
-char *style_wmfs_norm = "\\#D4D4D4\\";
+char *style_dwm_head = "\x05";
+char *style_dwm_norm = "\x01";
 
 int main(int argc, char **argv)
 {
@@ -119,8 +119,8 @@ int main(int argc, char **argv)
         char *style_head;
         char *style_norm;
         if(argc > 1 && !strcmp(argv[1], "-w")) {
-                style_head = style_wmfs_head;
-                style_norm = style_wmfs_norm;
+                style_head = style_dwm_head;
+                style_norm = style_dwm_norm;
         } else {
                 style_head = style_null;
                 style_norm = style_null;
