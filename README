@@ -1,0 +1,7 @@
+stater
+------
+
+Dumb hardware stats printer.
+
+It probes several files in /proc and /sys file systems and prints statistics such as memory and CPU usage, temperatures, CPU frequency and battery status.
+No configuration outside of editing C code.
