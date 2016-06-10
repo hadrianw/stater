@@ -1,5 +1,5 @@
 # flags
-CPPFLAGS = #-D
+CPPFLAGS =
 CFLAGS = -std=c99 -pedantic -Os -Wall ${CPPFLAGS} -march=native
 LDFLAGS = -s
 

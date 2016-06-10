@@ -2,6 +2,21 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
+
+#ifndef CPU_FREQ_PATH
+#define CPU_FREQ_PATH ""
+#endif
+#ifndef CPU_TEMP_PATH
+#define CPU_TEMP_PATH ""
+#endif
+#ifndef BAT_PATH
+#define BAT_PATH ""
+#endif
+#ifndef GPU_TEMP_PATH
+#define GPU_TEMP_PATH ""
+#endif
+
 int ret = 0;
 int tmp = 0;
 
@@ -124,37 +139,30 @@ main(int argc, char **argv)
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
-        cpu_freq_present = get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
-                                     &cpu_freq) == 0;
-        cpu_temp_present = get_int("/sys/class/thermal/thermal_zone0/temp",
-                                   &cpu_temp) == 0;
+        cpu_freq_present = CPU_FREQ_PATH[0] && get_float(CPU_FREQ_PATH, &cpu_freq) == 0;
+        cpu_temp_present = CPU_TEMP_PATH[0] && get_int(CPU_TEMP_PATH, &cpu_temp) == 0;
 
-        if(get_int("/sys/class/power_supply/BAT0/present",
-                        &bat_present) != 0) {
-                bat_present = 0;
-        }
-        if(bat_present) {
-                get_int("/sys/class/power_supply/BAT0/energy_now",
+        if(BAT_PATH[0] && get_int(BAT_PATH "present", &bat_present) == 0 && bat_present) {
+                get_int(BAT_PATH "energy_now",
                                 &bat_now);
-                get_int("/sys/class/power_supply/BAT0/energy_full",
+                get_int(BAT_PATH "energy_full",
                                 &bat_full);
-                get_string("/sys/class/power_supply/BAT0/status",
+                get_string(BAT_PATH "status",
                                 bat_status, sizeof(bat_status));
                 if(!strcmp(bat_status, "Discharging\n")) {
-                        get_int("/sys/class/power_supply/BAT0/power_now",
+                        get_int(BAT_PATH "power_now",
                                         &bat_rate);
                         bat_time = (float)bat_now / bat_rate;
                         bat_state = '-';
                 } else if(!strcmp(bat_status, "Charging\n")) {
-                        get_int("/sys/class/power_supply/BAT0/power_now",
+                        get_int(BAT_PATH "power_now",
                                         &bat_rate);
                         bat_time = (float)(bat_full - bat_now) / bat_rate;
                         bat_state = '+';
                 }
         }
 
-        gpu_temp_present = get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input",
-	                           &gpu_temp) == 0;
+        gpu_temp_present = GPU_TEMP_PATH[0] && get_int(GPU_TEMP_PATH, &gpu_temp) == 0;
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
         cpu_temp /= 1000;

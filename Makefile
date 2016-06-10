@@ -1,19 +1,25 @@
 include config.mk
 
-SRCS = stater.c
+SRC = stater.c
+OBJ = ${SRC:.c=.o}
 
 all: stater
 
-stater: $(SRCS:.c=.o)
+stater: $(SRC:.c=.o)
 	@echo CC -o $@
 	@$(CC) -o $@ $+ $(LDFLAGS)
 
-%.o: %.c config.mk
+.c.o:
 	@echo CC -c $<
 	@$(CC) -c $< $(CFLAGS)
+
+$(OBJ): config.h config.mk
+
+config.h:
+	cp config.def.h $@
 
 clean:
 	@echo cleaning
 	@rm -f stater *.o
 
-.PHONY: run all clean
+.PHONY: all clean
