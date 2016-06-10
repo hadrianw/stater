@@ -101,11 +101,13 @@ main(int argc, char **argv)
         int mem_total = 0;
         int mem_free = 0;
         float mem_percent = 0.0f;
-        int cpu_temp = 0;
         int cpu_total = 0;
         int cpu_idle = 0;
         float cpu_percent = 0.0f;
+        int cpu_freq_present = 0;
         float cpu_freq = 0.0f;
+        int cpu_temp_present = 0;
+        int cpu_temp = 0;
         int bat_present = 0;
         int bat_now = 0;
         int bat_full = 0;
@@ -116,14 +118,16 @@ main(int argc, char **argv)
         int bat_minutes = 0;
         float bat_time = 0.0f;
         float bat_percent = 0.0f;
+        int gpu_temp_present = 0;
         int gpu_temp = 0;
         struct timeval tv = {1, 0};
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
-        get_int("/sys/class/thermal/thermal_zone0/temp", &cpu_temp);
-        get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
-                        &cpu_freq);
+        cpu_freq_present = get_float("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
+                                     &cpu_freq) == 0;
+        cpu_temp_present = get_int("/sys/class/thermal/thermal_zone0/temp",
+                                   &cpu_temp) == 0;
 
         if(get_int("/sys/class/power_supply/BAT0/present",
                         &bat_present) != 0) {
@@ -149,7 +153,8 @@ main(int argc, char **argv)
                 }
         }
 
-        get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input", &gpu_temp);
+        gpu_temp_present = get_int("/sys/devices/platform/thinkpad_hwmon/temp4_input",
+	                           &gpu_temp) == 0;
 
         mem_percent = (mem_total-mem_free)*100.0f/mem_total;
         cpu_temp /= 1000;
@@ -165,15 +170,23 @@ main(int argc, char **argv)
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
-        printf("mem: %.1f%%"
-               " cpu: %d°C %.1f%% %.1fGHz",
-               mem_percent,
-               cpu_temp, cpu_percent, cpu_freq);
+        printf("mem: %.1f%% cpu: %.1f%%",
+              mem_percent, cpu_percent);
+
+        if(cpu_freq_present) {
+                printf(" %.1fGHz", cpu_freq);
+        }
+        if(cpu_temp_present) {
+                printf(" %d°C", cpu_temp);
+        }
         if(bat_present) {
                 printf(" bat: %.1f%%", bat_percent);
                 if(bat_state != '~' && bat_hours >= 0 && bat_minutes >= 0)
                         printf(" %c%02d:%02d", bat_state, bat_hours, bat_minutes);
         }
-        printf(" gpu: %d°C\n", gpu_temp);
+        if(gpu_temp_present) {
+                printf(" gpu: %d°C", gpu_temp);
+        }
+        puts("");
         return 0;
 }
