@@ -1,15 +1,7 @@
-TARGET = stater
-SRCS := $(wildcard *.c)
-EXCLUDE =
-
-# includes and libs
-INCS = 
-LIBS = 
-
 # flags
 CPPFLAGS = #-D
-CFLAGS   = -std=c99 -pedantic -Os -Wall ${INCS} ${CPPFLAGS} -march=native
-LDFLAGS  = -s ${LIBS}
+CFLAGS = -std=c99 -pedantic -Os -Wall ${CPPFLAGS} -march=native
+LDFLAGS = -s
 
 # compiler and linker
 CC = cc

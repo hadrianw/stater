@@ -1,13 +1,10 @@
 include config.mk
 
-SRCS := $(filter-out $(EXCLUDE),$(SRCS))
+SRCS = stater.c
 
-run: $(TARGET)
-	./$(TARGET)
+all: stater
 
-all: $(TARGET)
-
-$(TARGET): $(SRCS:.c=.o)
+stater: $(SRCS:.c=.o)
 	@echo CC -o $@
 	@$(CC) -o $@ $+ $(LDFLAGS)
 
@@ -17,6 +14,6 @@ $(TARGET): $(SRCS:.c=.o)
 
 clean:
 	@echo cleaning
-	@rm -f $(TARGET) *.o *.d
+	@rm -f stater *.o
 
 .PHONY: run all clean
