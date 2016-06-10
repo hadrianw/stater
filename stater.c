@@ -5,7 +5,8 @@
 int ret = 0;
 int tmp = 0;
 
-int proc_stat(char *filename, int *total, int *idle)
+int
+proc_stat(char *filename, int *total, int *idle)
 {
         int i;
         FILE *file = fopen(filename, "r");
@@ -23,7 +24,8 @@ int proc_stat(char *filename, int *total, int *idle)
         return 0;
 }
 
-int proc_meminfo(char *filename, int *total, int *free)
+int
+proc_meminfo(char *filename, int *total, int *free)
 {
         FILE *file = fopen(filename, "r");
         if(!file) {
@@ -49,7 +51,8 @@ int proc_meminfo(char *filename, int *total, int *free)
         return (*total == -1 || *free == -1) ?-1 :0;
 }
 
-int get_int(char *filename, int *val)
+int
+get_int(char *filename, int *val)
 {
         FILE *file = fopen(filename, "r");
         if(!file)
@@ -64,7 +67,8 @@ int get_int(char *filename, int *val)
         }
 }
 
-int get_float(char *filename, float *val)
+int
+get_float(char *filename, float *val)
 {
         FILE *file = fopen(filename, "r");
         if(!file)
@@ -79,7 +83,8 @@ int get_float(char *filename, float *val)
         }
 }
 
-int get_string(char *filename, char *val, int n)
+int
+get_string(char *filename, char *val, int n)
 {
         FILE *file = fopen(filename, "r");
         if(!file)
@@ -90,7 +95,8 @@ int get_string(char *filename, char *val, int n)
         return 0;
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
         int mem_total = 0;
         int mem_free = 0;
@@ -120,8 +126,9 @@ int main(int argc, char **argv)
                         &cpu_freq);
 
         if(get_int("/sys/class/power_supply/BAT0/present",
-                        &bat_present) != 0)
+                        &bat_present) != 0) {
                 bat_present = 0;
+        }
         if(bat_present) {
                 get_int("/sys/class/power_supply/BAT0/energy_now",
                                 &bat_now);
