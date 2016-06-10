@@ -90,10 +90,6 @@ int get_string(char *filename, char *val, int n)
         return 0;
 }
 
-char *style_null = "";
-char *style_dwm_head = "\x05";
-char *style_dwm_norm = "\x01";
-
 int main(int argc, char **argv)
 {
         int mem_total = 0;
@@ -116,15 +112,6 @@ int main(int argc, char **argv)
         float bat_percent = 0.0f;
         int gpu_temp = 0;
         struct timeval tv = {1, 0};
-        char *style_head;
-        char *style_norm;
-        if(argc > 1 && !strcmp(argv[1], "-w")) {
-                style_head = style_dwm_head;
-                style_norm = style_dwm_norm;
-        } else {
-                style_head = style_null;
-                style_norm = style_null;
-        }
 
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         proc_meminfo("/proc/meminfo", &mem_total, &mem_free);
@@ -171,15 +158,15 @@ int main(int argc, char **argv)
         proc_stat("/proc/stat", &cpu_total, &cpu_idle);
         cpu_percent = (cpu_total-cpu_idle)*100.0f/cpu_total;
 
-        printf("%smem:%s %.1f%%"
-               " %scpu:%s %d°C %.1f%% %.1fGHz",
-               style_head, style_norm, mem_percent,
-               style_head, style_norm, cpu_temp, cpu_percent, cpu_freq);
+        printf("mem: %.1f%%"
+               " cpu: %d°C %.1f%% %.1fGHz",
+               mem_percent,
+               cpu_temp, cpu_percent, cpu_freq);
         if(bat_present) {
-                printf(" %sbat:%s %.1f%%", style_head, style_norm, bat_percent);
+                printf(" bat: %.1f%%", bat_percent);
                 if(bat_state != '~' && bat_hours >= 0 && bat_minutes >= 0)
                         printf(" %c%02d:%02d", bat_state, bat_hours, bat_minutes);
         }
-        printf(" %sgpu:%s %d°C\n", style_head, style_norm, gpu_temp);
+        printf(" gpu: %d°C\n", gpu_temp);
         return 0;
 }
